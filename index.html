@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>S2 设备与浏览器兼容性测试页</title>
+    <link rel="stylesheet" href="./s2-style.css" />
+    <script src="./s2-page.js" defer></script>
+  </head>
+  <body>
+    <main class="page-container">
+      <header class="page-header">
+        <span class="page-badge">M0 技术验证 · S2 纯静态测试页</span>
+        <h1 class="page-title">S2 设备与浏览器兼容性测试页</h1>
+        <p class="page-subtitle">
+          纯静态 HTML 页面（与正式业务域名无关），不含业务代码、真实凭据或任何密钥，用于验证 NFC 标签打开、二维码打开、UA 与内核识别、复制文本、保存素材、App 唤起及 3 秒前台检测、电话拨号、高德地图 URI 及平台目录核对。
+        </p>
+      </header>
+
+      <!-- 1. 固定测试地址与入口参数识别 -->
+      <section class="card" id="section-fixed-urls" aria-labelledby="title-fixed-urls">
+        <h2 class="card-title" id="title-fixed-urls">1. 固定测试地址（供 NFC 标签与二维码使用）</h2>
+        <p class="card-desc">
+          保留两个固定测试地址写入 NTAG213/NTAG215 测试标签（测试标签不锁定）：一个不带参数，一个带 <code>?q=1</code>。
+        </p>
+        <div class="kv-list">
+          <div class="kv-row">
+            <div class="kv-label">测试页公开仓库</div>
+            <p class="kv-value"><code id="repo-url">https://github.com/ChaosLcc/tap-test.git</code></p>
+          </div>
+          <div class="kv-row">
+            <div class="kv-label">固定测试地址 A（无参数）</div>
+            <p class="kv-value"><code id="fixed-url-plain">https://chaoslcc.github.io/tap-test/</code></p>
+          </div>
+          <div class="kv-row">
+            <div class="kv-label">固定测试地址 B（带 ?q=1 参数）</div>
+            <p class="kv-value"><code id="fixed-url-query">https://chaoslcc.github.io/tap-test/?q=1</code></p>
+          </div>
+          <div class="kv-row">
+            <div class="kv-label">当前访问地址</div>
+            <p class="kv-value"><code id="current-url">-</code></p>
+          </div>
+          <div class="kv-row">
+            <div class="kv-label">当前查询参数</div>
+            <p class="kv-value"><code id="current-search">（无参数）</code></p>
+          </div>
+          <div class="kv-row">
+            <div class="kv-label">识别出的入口地址模式</div>
+            <p class="kv-value" id="entry-mode">待识别</p>
+          </div>
+        </div>
+        <div class="btn-group">
+          <a class="btn-link btn-secondary" id="switch-url-plain" href="./">切换到固定无参数地址 (./)</a>
+          <a class="btn-link btn-secondary" id="switch-url-query" href="./?q=1">切换到带 ?q=1 参数地址 (./?q=1)</a>
+        </div>
+      </section>
+
+      <!-- 2. User-Agent、运行环境与浏览器内核版本 -->
+      <section class="card" id="section-env" aria-labelledby="title-env">
+        <h2 class="card-title" id="title-env">2. 运行环境与浏览器内核识别（需求 22.1、37.1）</h2>
+        <div class="kv-list">
+          <div class="kv-row">
+            <div class="kv-label">User-Agent 原文</div>
+            <p class="kv-value"><code id="ua-raw">读取中...</code></p>
+          </div>
+          <div class="kv-row">
+            <div class="kv-label">运行环境（iOS / Android）</div>
+            <p class="kv-value" id="env-os">读取中...</p>
+          </div>
+          <div class="kv-row">
+            <div class="kv-label">浏览器或 App 内置浏览器识别结果</div>
+            <p class="kv-value" id="env-host">读取中...</p>
+          </div>
+          <div class="kv-row">
+            <div class="kv-label">浏览器内核及版本</div>
+            <p class="kv-value" id="env-engine">读取中...</p>
+          </div>
+          <div class="kv-row">
+            <div class="kv-label">外部 App 唤起引导判断（需求 22.2）</div>
+            <p class="kv-value" id="env-scheme-policy">读取中...</p>
+          </div>
+          <div class="kv-row">
+            <div class="kv-label">构建目标兼容性与 @vitejs/plugin-legacy 评估（需求 37.1）</div>
+            <p class="kv-value" id="env-legacy-check">读取中...</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <tbody>
+              <tr>
+                <th><label for="record-device-model">设备型号</label></th>
+                <td><input class="input-field" id="record-device-model" autocomplete="off" placeholder="例如 iPhone 15 Pro、荣耀 Magic6" /></td>
+              </tr>
+              <tr>
+                <th><label for="record-os-version">系统完整版本</label></th>
+                <td><input class="input-field" id="record-os-version" autocomplete="off" placeholder="例如 iOS 18.6.2、HarmonyOS 5.0.0" /></td>
+              </tr>
+              <tr>
+                <th><label for="record-browser-app">浏览器或 App</label></th>
+                <td><input class="input-field" id="record-browser-app" autocomplete="off" placeholder="例如 Safari、微信、华为浏览器" /></td>
+              </tr>
+              <tr>
+                <th><label for="record-browser-version">浏览器或 App 版本</label></th>
+                <td><input class="input-field" id="record-browser-version" autocomplete="off" placeholder="填写设置页中显示的版本" /></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="btn-group">
+          <label class="kv-label" for="ua-sim-input">可选：输入任意 User-Agent 核对识别规则</label>
+          <input
+            class="input-field"
+            id="ua-sim-input"
+            type="text"
+            placeholder="粘贴设备 User-Agent 字符串进行核对"
+          />
+          <button type="button" class="btn-secondary" id="ua-sim-btn">解析输入的 User-Agent</button>
+          <button type="button" class="btn-secondary" id="ua-reset-btn">恢复当前设备真实 User-Agent</button>
+        </div>
+      </section>
+
+      <!-- 3. 复制文本测试 -->
+      <section class="card" id="section-copy" aria-labelledby="title-copy">
+        <h2 class="card-title" id="title-copy">3. 复制文本测试（需求 26.1、26.2、27.2、29.2）</h2>
+        <p class="card-desc">
+          优先在点击事件中调用 <code>navigator.clipboard.writeText</code>；不可用或失败时回退到隐藏文本框加 <code>document.execCommand('copy')</code>；仍失败时选中文本框提示手动复制。
+        </p>
+        <label class="kv-label" for="copy-test-input">测试文案内容</label>
+        <textarea class="textarea-field" id="copy-test-input">嘀嗒碰碰 S2 设备兼容性测试文案 #门店探店 #周末好去处（AI辅助生成）</textarea>
+        <div class="btn-group">
+          <button type="button" id="copy-test-btn">一键复制测试文本</button>
+        </div>
+        <div class="status-box" id="copy-test-result" role="status">尚未执行复制文本测试</div>
+      </section>
+
+      <!-- 4. 保存视频与图片测试 -->
+      <section class="card" id="section-media" aria-labelledby="title-media">
+        <h2 class="card-title" id="title-media">4. 保存视频与长按保存图片（需求 22.4、26.3）</h2>
+        <div class="kv-list">
+          <div class="kv-row">
+            <div class="kv-label">navigator.canShare({ files }) 支持状态</div>
+            <p class="kv-value" id="canshare-support-status">检测中...</p>
+          </div>
+          <div class="kv-row">
+            <div class="kv-label">不支持 canShare 时的分环境降级说明（需求 22.4、26.3）</div>
+            <p class="kv-value" id="video-save-fallback-guide">
+              iOS 系统浏览器：支持 navigator.canShare({ files }) 时调起系统分享面板选择“存储视频”，不支持时点击视频或下载链接在系统菜单中选择“存储到文件 / 存储视频”；Android 系统浏览器：不支持分享面板时直接点击“直接下载测试视频”保存到本地相册或下载目录；微信等内置浏览器：请点击右上角选择“在浏览器中打开”后再下载或保存视频。
+            </p>
+          </div>
+        </div>
+
+        <video
+          class="media-preview"
+          id="sample-video"
+          src="./sample.mp4"
+          controls
+          playsinline
+          preload="metadata"
+        ></video>
+
+        <div class="btn-group">
+          <button type="button" id="canshare-video-btn" disabled>测试 navigator.canShare 保存视频</button>
+          <a
+            class="btn-link btn-secondary"
+            id="download-video-link"
+            href="./sample.mp4"
+            download="tap-test-sample.mp4"
+          >
+            直接下载测试视频 (sample.mp4)
+          </a>
+        </div>
+        <div class="status-box" id="canshare-video-result" role="status">尚未执行 navigator.canShare 视频保存测试</div>
+        <p class="card-desc">
+          分享面板完成交互后，必须检查相册或文件确认实际保存，再把记录表中的结果改为“成功”或“失败”。系统只自动记录面板交互状态，不把面板打开当作文件保存成功。
+        </p>
+        <div class="status-box" id="download-video-result" role="status">尚未触发直接下载视频</div>
+
+        <hr />
+        <h3 class="card-title">长按保存图片测试</h3>
+        <p class="card-desc" id="image-save-guide">
+          iOS 操作说明：长按下方测试图片，在弹出菜单中选择“存储到‘照片’”或“添加到照片”；Android 与微信内置浏览器操作说明：长按下方测试图片，选择“保存图片”或“下载图片”。
+        </p>
+        <img
+          class="media-preview"
+          id="longpress-image"
+          src="./sample.jpg"
+          alt="S2 长按保存测试图片（请长按图片选择保存到相册）"
+        />
+        <div class="btn-group">
+          <button type="button" class="btn-secondary" id="mark-image-saved-btn">记录：长按保存图片成功</button>
+          <button type="button" class="btn-secondary" id="mark-image-failed-btn">记录：长按保存图片受限或失败</button>
+        </div>
+        <div class="status-box" id="image-save-result" role="status">请长按上方图片测试保存，并点击按钮记录结果</div>
+      </section>
+
+      <!-- 5. 各 App 唤起地址及 3 秒后是否仍在前台 -->
+      <section class="card" id="section-launch" aria-labelledby="title-launch">
+        <h2 class="card-title" id="title-launch">5. App 唤起地址与 3 秒前台检测（需求 22.2、22.3）</h2>
+        <p class="card-desc">
+          点击唤起按钮后启动 3000 毫秒计时器；若 3 秒后 <code>document.visibilityState === 'visible'</code>（页面仍在前台），以不遮挡系统确认框的方式展示“没有打开？”备选入口提示（下载 App 或使用保存素材加复制文案降级方案）。
+        </p>
+
+        <div class="notice-box hidden" id="open-in-browser-guide" role="alert">
+          当前运行在会拦截第三方 App 跳转的内置浏览器中（需求 22.2）：请点击右上角“···”并选择“在系统浏览器中打开”，即可正常唤起对应 App；不需唤起外部 App 的复制文本、查看二维码等功能在当前环境可直接使用。
+        </div>
+
+        <div class="btn-group">
+          <button type="button" id="launch-douyin-btn" data-scheme="snssdk1128://" data-platform="抖音">
+            测试唤起抖音 (snssdk1128://)
+          </button>
+          <button type="button" id="launch-wechat-btn" data-scheme="weixin://" data-platform="微信">
+            测试唤起微信 (weixin://)
+          </button>
+          <button
+            type="button"
+            class="btn-secondary"
+            id="launch-wecom-btn"
+            data-scheme="weixin://biz/ww/profile/https%3A%2F%2Fwork.weixin.qq.com%2Fca%2Fcawcde000000test%3Fcustomer_channel%3Ds1c1"
+            data-fallback-https="https://work.weixin.qq.com/ca/cawcde000000test?customer_channel=s1c1"
+            data-platform="企业微信获客链接"
+          >
+            测试企业微信获客链接 Scheme (weixin://biz/ww/profile/...)
+          </button>
+        </div>
+
+        <div class="notice-box hidden" id="foreground-fallback-notice" role="status">
+          3 秒后页面仍在前台：没有打开？如未安装对应 App 或被当前浏览器拦截，请点击右上角在系统浏览器中打开，或改用“保存视频/图片 + 复制文案后手动打开 App”的降级方案。
+        </div>
+
+        <div class="status-box" id="launch-test-result" role="status">尚未触发 App 唤起测试</div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>平台</th>
+                <th>编码</th>
+                <th>app_open_url</th>
+                <th>无可用自定义唤起地址时的策略（设计 7.6）</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>抖音</td>
+                <td><code>douyin</code></td>
+                <td><code>snssdk1128://</code></td>
+                <td>支持 Scheme 唤起；门店页与账号主页打开 <code>douyin.com</code> / <code>iesdouyin.com</code> HTTPS 链接</td>
+              </tr>
+              <tr>
+                <td>微信</td>
+                <td><code>wechat</code></td>
+                <td><code>weixin://</code></td>
+                <td>发朋友圈/视频号先保存素材并复制文案，再通过 <code>weixin://</code> 打开微信</td>
+              </tr>
+              <tr>
+                <td>快手、小红书、美团、大众点评、高德、携程、百度</td>
+                <td><code>kuaishou</code> / <code>xiaohongshu</code> / <code>meituan</code> / <code>dianping</code> / <code>amap</code> / <code>ctrip</code> / <code>baidu</code></td>
+                <td>无（空）</td>
+                <td>没有通用无参数唤起地址，直接打开经过平台目录域名白名单校验的 HTTPS 门店页或账号主页链接</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 6. tel: 链接与高德地图 URI -->
+      <section class="card" id="section-tel-amap" aria-labelledby="title-tel-amap">
+        <h2 class="card-title" id="title-tel-amap">6. tel: 拨号链接与高德地图 URI 调起（需求 29.3）</h2>
+        <p class="card-desc">
+          测试“关于我们”模块的电话拨号（使用测试服务号，不含真实个人手机号）与高德地图 URI 导航（GCJ-02 坐标标点与关键词搜索两种地址）。
+        </p>
+        <div class="btn-group">
+          <a class="btn-link" id="tel-link" href="tel:4000000000">测试拨打电话 (tel:4000000000)</a>
+          <a
+            class="btn-link btn-secondary"
+            id="amap-marker-link"
+            href="https://uri.amap.com/marker?position=117.120098,36.651200&amp;name=%E6%BB%B4%E5%92%92%E7%A2%B0%E7%A2%B0%E6%B5%8B%E8%AF%95%E9%97%A8%E5%BA%97&amp;src=tap-test&amp;coordinate=gaode&amp;callnative=1"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            测试高德地图坐标标点 URI (uri.amap.com/marker)
+          </a>
+          <a
+            class="btn-link btn-secondary"
+            id="amap-search-link"
+            href="https://uri.amap.com/search?keyword=%E6%B5%8E%E5%8D%97%E5%8E%86%E4%B8%8B%E5%8C%BA%E6%B5%8B%E8%AF%95%E9%97%A8%E5%BA%97&amp;view=map&amp;src=tap-test&amp;callnative=1"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            测试高德地图关键词搜索 URI (uri.amap.com/search)
+          </a>
+        </div>
+        <div class="status-box" id="tel-test-result" role="status">尚未触发 tel: 拨号测试</div>
+        <div class="status-box" id="amap-test-result" role="status">尚未触发高德地图 URI 测试</div>
+      </section>
+
+      <!-- 7. 平台目录分享链接域名与微信二维码内容前缀核对 -->
+      <section class="card" id="section-catalog" aria-labelledby="title-catalog">
+        <h2 class="card-title" id="title-catalog">7. 平台目录与微信二维码内容前缀核对（需求 9.3、9.7；设计 7.6）</h2>
+        <p class="card-desc">
+          粘贴各平台 App 真实分享链接（如携程门店分享短链）或微信相关二维码解码后的文本，核对是否符合设计第 7.6 节的域名后缀与前缀规则。
+        </p>
+        <div class="table-wrap">
+          <table id="catalog-prefix-table">
+            <thead>
+              <tr>
+                <th>核对项目</th>
+                <th>关联功能项</th>
+                <th>设计草案值</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>携程分享链接域名</td>
+                <td>门店页（点评）</td>
+                <td><code>ctrip.com</code></td>
+              </tr>
+              <tr>
+                <td>抖音打开 App 地址</td>
+                <td>发抖音 / 降级打开</td>
+                <td><code>snssdk1128://</code></td>
+              </tr>
+              <tr>
+                <td>微信打开 App 地址</td>
+                <td>朋友圈 / 视频号 / 关注视频号</td>
+                <td><code>weixin://</code></td>
+              </tr>
+              <tr>
+                <td>个人微信二维码前缀</td>
+                <td><code>private.friend</code></td>
+                <td><code>https://u.wechat.com/</code></td>
+              </tr>
+              <tr>
+                <td>企业微信二维码前缀</td>
+                <td><code>private.friend</code> / <code>private.group</code></td>
+                <td><code>https://work.weixin.qq.com/</code></td>
+              </tr>
+              <tr>
+                <td>个人微信群二维码前缀</td>
+                <td><code>private.group</code></td>
+                <td><code>https://weixin.qq.com/g/</code></td>
+              </tr>
+              <tr>
+                <td>公众号二维码前缀</td>
+                <td><code>follow.official_account</code></td>
+                <td><code>http://weixin.qq.com/r/</code></td>
+              </tr>
+              <tr>
+                <td>视频号二维码前缀</td>
+                <td><code>follow.channels</code></td>
+                <td><code>https://weixin.qq.com/sph/</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="btn-group">
+          <label class="kv-label" for="catalog-check-input">输入分享链接或二维码解码文本</label>
+          <input
+            class="input-field"
+            id="catalog-check-input"
+            type="text"
+            placeholder="例如 https://u.wechat.com/EAbcd12345 或 https://m.ctrip.com/webapp/..."
+          />
+          <button type="button" class="btn-secondary" id="catalog-check-btn">核对链接域名或二维码前缀</button>
+        </div>
+        <div class="status-box" id="catalog-check-result" role="status">尚未输入待核对的链接或二维码前缀</div>
+      </section>
+
+      <!-- 8. 当前设备测试记录导出 -->
+      <section class="card" id="section-record" aria-labelledby="title-record">
+        <h2 class="card-title" id="title-record">8. 当前设备逐项测试记录</h2>
+        <p class="card-desc">
+          逐项记录本机实测结果。表单只保存在当前浏览器，不会上传；完成后复制 Markdown 汇总，补入设备矩阵。已有用户报告仍须标注来源，不能用本表代替独立复核。
+        </p>
+        <div class="table-wrap">
+          <table id="manual-test-records">
+            <thead>
+              <tr>
+                <th>真机测试项</th>
+                <th>结果</th>
+                <th>备注或实际地址</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>NFC 标签碰卡打开</td><td><select class="input-field" data-record-status="nfc"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="nfc" placeholder="标签地址、系统提示及结果" /></td></tr>
+              <tr><td>二维码扫码打开</td><td><select class="input-field" data-record-status="qr"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="qr" placeholder="扫码 App、是否在内置浏览器打开" /></td></tr>
+              <tr><td>发抖音唤起及 3 秒前台结果</td><td><select class="input-field" data-record-status="douyin"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="douyin" placeholder="唤起结果、3 秒时页面状态及人工确认" /></td></tr>
+              <tr><td>微信 Scheme 唤起及 3 秒前台结果</td><td><select class="input-field" data-record-status="wechat"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="wechat" placeholder="唤起结果、3 秒时页面状态及人工确认" /></td></tr>
+              <tr><td>navigator.canShare 分享面板与视频保存结果</td><td><select class="input-field" data-record-status="canshare"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="canshare" placeholder="面板是否打开；检查文件后再确认保存结果" /></td></tr>
+              <tr><td>降级直接下载并保存视频</td><td><select class="input-field" data-record-status="video"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="video" placeholder="下载、相册或文件保存结果" /></td></tr>
+              <tr><td>长按保存图片</td><td><select class="input-field" data-record-status="image"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="image" placeholder="菜单选项及保存结果" /></td></tr>
+              <tr><td>复制文案</td><td><select class="input-field" data-record-status="copy"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="copy" placeholder="粘贴验证结果或降级方式" /></td></tr>
+              <tr><td>小红书保存素材、复制文案并打开</td><td><select class="input-field" data-record-status="xiaohongshu"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="xiaohongshu" placeholder="保存、复制、打开结果" /></td></tr>
+              <tr><td>朋友圈保存素材、复制文案并打开微信</td><td><select class="input-field" data-record-status="moments"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="moments" placeholder="保存、复制、打开结果" /></td></tr>
+              <tr><td>各平台门店页链接</td><td><select class="input-field" data-record-status="store"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="store" placeholder="平台、实际分享链接域名及打开结果" /></td></tr>
+              <tr><td>抖音、快手、小红书账号主页</td><td><select class="input-field" data-record-status="account"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="account" placeholder="平台、实际链接域名及打开结果" /></td></tr>
+              <tr><td>个人微信二维码识别</td><td><select class="input-field" data-record-status="qr-personal"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="qr-personal" placeholder="解码内容前缀，不记录二维码个人信息" /></td></tr>
+              <tr><td>企业微信二维码识别</td><td><select class="input-field" data-record-status="qr-wecom"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="qr-wecom" placeholder="联系我或客户群二维码前缀" /></td></tr>
+              <tr><td>个人微信群二维码识别</td><td><select class="input-field" data-record-status="qr-wechat-group"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="qr-wechat-group" placeholder="解码内容前缀，不记录群成员信息" /></td></tr>
+              <tr><td>公众号二维码识别</td><td><select class="input-field" data-record-status="qr-official"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="qr-official" placeholder="解码内容前缀" /></td></tr>
+              <tr><td>视频号二维码识别及微信内识别</td><td><select class="input-field" data-record-status="qr-channels"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="qr-channels" placeholder="解码前缀及微信内识别结果" /></td></tr>
+              <tr><td>企业微信获客链接唤起及 HTTPS 回退</td><td><select class="input-field" data-record-status="wecom"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="wecom" placeholder="仅记录测试链接域名与打开结果" /></td></tr>
+              <tr><td>高德地图 URI 导航</td><td><select class="input-field" data-record-status="amap"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="amap" placeholder="marker / search 与打开结果" /></td></tr>
+              <tr><td>tel: 拨号</td><td><select class="input-field" data-record-status="tel"><option>待测</option><option>待确认</option><option>成功</option><option>失败</option><option>受限</option><option>不适用</option></select></td><td><input class="input-field" data-record-note="tel" placeholder="是否弹出系统拨号确认" /></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <textarea class="textarea-field" id="record-summary-output" readonly></textarea>
+        <div class="btn-group">
+          <button type="button" id="copy-summary-btn">复制当前设备测试记录</button>
+        </div>
+        <div class="status-box" id="copy-summary-result" role="status">点击上方按钮可复制当前设备汇总记录</div>
+      </section>
+
+      <footer class="page-footer">
+        <p>S2 设备兼容性纯静态测试页 · 仅用于 M0 阶段与域名无关的设备及浏览器行为核对，不含任何业务接口或密钥。</p>
+      </footer>
+    </main>
+  </body>
+</html>
